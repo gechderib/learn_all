@@ -61,9 +61,23 @@ def snippet_detail(request, pk):
 @api_view(["POST"])
 def create_snippet(request):
     if request.method == "POST":
-        print(request.data)
         serializer = SnippetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+@api_view(["PUT","PATCH"])
+def update_snippet(request, pk):
+    try:
+        snippet = Snippet.objects.get(pk=pk)
+    except Snippet.DoesNotExist:
+        return JsonResponse({"error":"snippet doe not exist"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == "PUT":
+        serializer = SnippetSerializer(snippet, data=request.data)
+    elif request.method == "PATCH":
+        print(request.data)
+        serializer = SnippetSerializer(snippet, data=request.data,partial=True)            
