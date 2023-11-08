@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view
 
 
 @csrf_exempt
@@ -53,3 +55,15 @@ def snippet_detail(request, pk):
     elif request.method == 'DELETE':
         snippet.delete()
         return HttpResponse(status=204)
+    
+
+@csrf_exempt
+@api_view(["POST"])
+def create_snippet(request):
+    if request.method == "POST":
+        print(request.data)
+        serializer = SnippetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
