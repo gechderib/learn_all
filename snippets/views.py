@@ -80,4 +80,9 @@ def update_snippet(request, pk):
         serializer = SnippetSerializer(snippet, data=request.data)
     elif request.method == "PATCH":
         print(request.data)
-        serializer = SnippetSerializer(snippet, data=request.data,partial=True)            
+        serializer = SnippetSerializer(snippet, data=request.data,partial=True) 
+
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data)
+    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)           
