@@ -1,4 +1,3 @@
-# myapp/views.py
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +8,7 @@ from .serializers import UserSerializer
 @api_view(['POST'])
 # @permission_classes([AllowAny])
 def register_user(request):
+    print("o")
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
