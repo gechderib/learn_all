@@ -12,3 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     #     user = CustomUser.objects.create_user(**validated_data)
     #     return user
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
