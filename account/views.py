@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
@@ -21,6 +22,7 @@ def register_user(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def user_login(request):
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
@@ -29,7 +31,7 @@ def user_login(request):
         # user = authenticate(request, username=username, dpassword=password)
         user = CustomUser.objects.get(username=username, password=password)
         print(user)
-        if user is not None :
+        if user is not None:
             login(request, user)
             return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
         else:
