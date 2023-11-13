@@ -1,16 +1,17 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .serializers import UserSerializer, UserLoginSerializer
-# from django.contrib.auth import authenticate, login
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
 from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@csrf_exempt
 def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
@@ -39,3 +40,10 @@ def user_login(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    request.auth.delete()
+    return Response({'detail': 'Successfully logged out.'}, status=status.HTTP_200_OK)
