@@ -5,10 +5,15 @@ from rest_framework.parsers import JSONParser
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
+from rest_framework.authentication import TokenAuthentication
+
+from commons.permission import IsAdmin, IsTech
 
 
 @csrf_exempt
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdmin])
 def snippet_list(request):
     """
     List all code snippets, or create a new snippet.
