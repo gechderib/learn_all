@@ -7,9 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import UserSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -23,7 +22,6 @@ def register_user(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@csrf_exempt
 def user_login(request):
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
@@ -31,10 +29,12 @@ def user_login(request):
         password = serializer.validated_data['password']
         # user = authenticate(request, username=username, dpassword=password)
         user = CustomUser.objects.get(username=username, password=password)
+        token, created = Token.objects.get_or_create(user=user)
+
         print(user)
         if user is not None:
             login(request, user)
-            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Login successful', 'token':token.key, 'created':created}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
@@ -44,6 +44,6 @@ def user_login(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def logout(request):
+def user_logout(request):
     request.auth.delete()
     return Response({'detail': 'Successfully logged out.'}, status=status.HTTP_200_OK)
