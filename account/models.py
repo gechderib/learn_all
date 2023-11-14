@@ -8,7 +8,8 @@ class CustomUser(AbstractUser):
         ('customer', 'Customer'),
     ]
     # adding the custom field here
-    phone_number = models.CharField(max_length=15,unique=True, blank=False, null=False,default="")
+    phone_number = models.CharField(max_length=15,unique=True,null=False,blank=False)
+    username = models.CharField(max_length=15,unique=True, blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLES, default='customer')
     profile_pic = models.CharField(max_length=100, null=True)
 

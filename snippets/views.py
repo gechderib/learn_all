@@ -7,13 +7,14 @@ from snippets.serializers import SnippetSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from commons.permission import IsAdmin, IsTech
 
 
-@csrf_exempt
+@api_view(["GET","POST"])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAdmin])
+@permission_classes([IsAuthenticated, IsTech])
 def snippet_list(request):
     """
     List all code snippets, or create a new snippet.
@@ -33,7 +34,7 @@ def snippet_list(request):
     
 
 
-@csrf_exempt
+@api_view(["GET","PUT","DELETE"])
 def snippet_detail(request, pk):
     """
     Retrieve, update or delete a code snippet.
@@ -41,7 +42,7 @@ def snippet_detail(request, pk):
     try:
         snippet = Snippet.objects.get(pk=pk)
     except Snippet.DoesNotExist:
-        return JsonResponse({"message":"data with id not found"}, status=404)
+        return JsonResponse({"message":"data with id not found"}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         serializer = SnippetSerializer(snippet)

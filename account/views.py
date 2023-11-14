@@ -25,13 +25,16 @@ def register_user(request):
 def user_login(request):
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
-        username = serializer.validated_data['username']
+        phone_number = serializer.validated_data['phone_number']
         password = serializer.validated_data['password']
         # user = authenticate(request, username=username, dpassword=password)
-        user = CustomUser.objects.get(username=username, password=password)
+        
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number, password=password)
+        except CustomUser.DoesNotExist:
+            return Response({'message':'customer not found'}, status=status.HTTP_404_NOT_FOUND)
         token, created = Token.objects.get_or_create(user=user)
 
-        print(user)
         if user is not None:
             login(request, user)
             return Response({'message': 'Login successful', 'token':token.key, 'created':created}, status=status.HTTP_200_OK)
