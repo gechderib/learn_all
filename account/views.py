@@ -13,7 +13,9 @@ from rest_framework.authtoken.models import Token
 @permission_classes([AllowAny])
 def register_user(request):
     if request.method == 'POST':
+        
         serializer = UserSerializer(data=request.data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -27,7 +29,6 @@ def user_login(request):
     if serializer.is_valid():
         phone_number = serializer.validated_data['phone_number']
         password = serializer.validated_data['password']
-        # user = authenticate(request, username=username, dpassword=password)
         
         try:
             user = CustomUser.objects.get(phone_number=phone_number, password=password)
