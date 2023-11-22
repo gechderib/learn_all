@@ -8,14 +8,14 @@ from .serializers import UserSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
 from rest_framework.authtoken.models import Token
-
+from commons.middlewares import isRoleExist
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
     if request.method == 'POST':
-        
         serializer = UserSerializer(data=request.data)
-        print(serializer)
+        print(request.data)
+        isRoleExist(request)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

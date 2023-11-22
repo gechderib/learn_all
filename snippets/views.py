@@ -9,12 +9,12 @@ from rest_framework.decorators import api_view, permission_classes,authenticatio
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from commons.permission import IsAdmin, IsTech
+from commons.permission import IsAdmin, IsOwner,IsRenter
 
 
 @api_view(["GET","POST"])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated, IsTech])
+@permission_classes([IsAuthenticated, IsOwner])
 def snippet_list(request):
     """
     List all code snippets, or create a new snippet.
