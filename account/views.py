@@ -8,7 +8,10 @@ from .serializers import UserSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
 from rest_framework.authtoken.models import Token
-from commons.middlewares import isRoleExist
+from commons.middlewares import isRoleExist, isAdminRoleExist
+from commons.permission import IsAdmin
+from rest_framework.views import APIView
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -16,6 +19,11 @@ def register_user(request):
         serializer = UserSerializer(data=request.data)
         print(request.data)
         isRoleExist(request)
+        if(not isRoleExist(request)):
+            return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
+        if isAdminRoleExist(request):
+            if request.user.is_authenticated:
+                print("kkkllllllllllllllll")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

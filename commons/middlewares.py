@@ -1,17 +1,19 @@
-# yourapp/middlewares.py
-
-from django.http import HttpResponse
 
 def isRoleExist(request):
     ROLES = ["admin","renter","owner"]
-    print("sdklfj" in ROLES)
-    # print(len(request.data.get("roles")))
+    result = True
     if request.data and request.data.get("roles") is not None and (len(request.data.get("roles"))) > 0:
         for value in request.data.get("roles"):
             if value not in ROLES:
-                print("not in roles")
+                result = False
                 break
-                # return False
-    if request.data and (request.data.get("roles") == None or len(request.data.get("roles")) == 0):
+    if request.data and (request.data.get("roles") is None or len(request.data.get("roles")) == 0):
         request.data.update({"roles":["renter"]})
+        result = True
+    print(result)
+    return result
+
+def isAdminRoleExist(request):
+    if "admin" in request.data.get("roles"):
         return True
+        
