@@ -12,6 +12,6 @@ class CustomUser(AbstractUser):
 
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = ['first_name', 'last_name','password']
+    REQUIRED_FIELDS = ['first_name', 'last_name','password','username']
 
     pass

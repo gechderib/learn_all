@@ -1,13 +1,13 @@
 from rest_framework.permissions import BasePermission
-from rest_framework.decorators import api_view, permission_classes
-from commons.middlewares import isAdminRoleExist
-from rest_framework.permissions import IsAuthenticated
 
+
+class IsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_superuser
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return request.user and ("admin" in request.user.roles)
-
 
 
 class IsRenter(BasePermission):
