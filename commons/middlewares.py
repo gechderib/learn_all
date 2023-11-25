@@ -16,4 +16,7 @@ def isRoleExist(request):
 def isAdminRoleExist(request):
     if "admin" in request.data.get("roles"):
         return True
-        
+
+def isOtherRoleExist(request):
+    if ("renter" in  request.data.get("roles")) or ("owner" in request.data.get("roles")):
+        return True

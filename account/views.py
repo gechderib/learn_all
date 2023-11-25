@@ -8,7 +8,7 @@ from .serializers import UserSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
 from rest_framework.authtoken.models import Token
-from commons.middlewares import isRoleExist, isAdminRoleExist
+from commons.middlewares import isRoleExist, isAdminRoleExist, isOtherRoleExist
 from commons.permission import IsAdmin, IsSuperUser
 
 @api_view(['POST'])
@@ -38,6 +38,8 @@ def register_admin(request):
             return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
         if not isAdminRoleExist(request):
             return Response("You are not allowed to register renter or owner", status=status.HTTP_403_FORBIDDEN)
+        if isOtherRoleExist(request):
+            return Response("You can't add other role, only admin role is allowed", status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
