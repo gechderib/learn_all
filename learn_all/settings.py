@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'snippets',
     'account',
-    'category'
+    'category',
+    'item'
 ]
 
 REST_FRAMEWORK = {
