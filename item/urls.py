@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import item_list
+from .views import get_all_item, add_item
 
 urlpatterns = [
-    path('items/', item_list, name='item-list'),
+    path('items/', get_all_item, name='item-list'),
+    path('add-item/', add_item, name='item-list'),
 ]
