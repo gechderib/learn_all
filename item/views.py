@@ -5,14 +5,26 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework import status
 # Create your views here.
-@api_view(['GET', 'POST'])
-def item_list(request):
+@api_view(['GET'])
+def get_all_items(request):
     if request.method == 'GET':
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
+@api_view(['GET'])
+def get_one_item(request,pk):
+    if request.method == 'GET':
+        try:
+            items = Item.objects.get(pk=pk)
+        except Item.DoesNotExist:
+            return Response("Item doesnot exist with the provided id")
+        serializer = ItemSerializer(items, many=False)
+        return Response(serializer.data)
+
+@api_view(['POST'])
+def add_item(request):
+    if request.method == 'POST':
         serializer = ItemCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

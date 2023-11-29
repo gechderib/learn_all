@@ -10,6 +10,7 @@ def isRoleExist(request):
     if request.data and (request.data.get("roles") is None or len(request.data.get("roles")) == 0):
         request.data.update({"roles":["renter"]})
         result = True
+        print(result)
     return result
 
 def isAdminRoleExist(request):

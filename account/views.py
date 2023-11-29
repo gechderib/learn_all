@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes,authentication_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import TokenAuthentication
@@ -10,13 +10,17 @@ from .models import CustomUser
 from rest_framework.authtoken.models import Token
 from commons.middlewares import isRoleExist, isAdminRoleExist, isOtherRoleExist
 from commons.permission import IsAdmin, IsSuperUser
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser])
 def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
-        isRoleExist(request)
+        # isRoleExist(request)
+        print(request.data)
         if(not isRoleExist(request)):
             return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
         if isAdminRoleExist(request):
