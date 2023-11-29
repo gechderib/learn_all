@@ -12,6 +12,9 @@ from commons.middlewares import isRoleExist, isAdminRoleExist, isOtherRoleExist
 from commons.permission import IsAdmin, IsSuperUser
 from rest_framework.parsers import MultiPartParser, FormParser
 
+import cloudinary
+from cloudinary.uploader import upload
+import os
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
