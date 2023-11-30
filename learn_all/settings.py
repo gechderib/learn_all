@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'account',
     'category',
-    'item'
+    'item',
+    'cloudinary_storage',
+    'cloudinary'
 ]
 
 REST_FRAMEWORK = {
@@ -153,6 +155,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # for file storage 
+MEDIA_URL = '/media/'
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config("CLOUDINARY_NAME"),
     'API_KEY': config("CLOUDINARY_API_KEY"),
@@ -160,4 +166,3 @@ CLOUDINARY_STORAGE = {
 }
 
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
