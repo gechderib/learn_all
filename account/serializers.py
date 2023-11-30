@@ -3,9 +3,9 @@ from .models import CustomUser
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    roles = serializers.ListField(write_only=True)
+    roles = serializers.ListSerializer(child=serializers.CharField(max_length=20), default=["renter"])
     profile_pic = serializers.ImageField(required=False)
-    
+
     class Meta:
         model = CustomUser
         fields = ('id', 'username', 'password', 'email','phone_number','first_name', 'last_name','profile_pic',"roles")
