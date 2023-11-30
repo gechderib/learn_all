@@ -1,21 +1,24 @@
+import json
 
 def isRoleExist(request):
     ROLES = ["admin","renter","owner"]
     result = True
-
+    
     if request.data and request.data.get("roles") is not None and (len(request.data.get("roles"))) > 0:
-        for value in request.data.get("roles"):
-            print(value)
+        roles = json.loads(request.data.get("roles"))
+        for value in roles:
             if value not in ROLES:
                 result = False
                 break        
     return result
 
 def isAdminRoleExist(request):
-    if request.data and "admin" in request.data.get("roles"):
-        return True
+    if request.data and request.data.get("roles") is not None:
+        roles = json.loads(request.data.get("roles"))
+        if "admin" in roles:
+            return True
     return False
 
 def isOtherRoleExist(request):
-    if ("renter" in  request.data.get("roles")) or ("owner" in request.data.get("roles")):
+    if ("renter" in  roles) or ("owner" in roles):
         return True
