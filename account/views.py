@@ -29,13 +29,6 @@ def register_user(request):
             return Response("You are not allowed to register admin", status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             user = serializer.save()
-
-            # upload image and secure url
-            profile_pic = request.data.get("profile_pic")
-            upload_response = upload(profile_pic, folder=f'rent_all_user_profile/{user.id}')
-            img_url = upload_response['secure_url']
-            user.profile_pic = img_url
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['GET'])

@@ -21,6 +21,8 @@ def isAdminRoleExist(request):
     return False
 
 def isOtherRoleExist(request):
-    if ("renter" in  roles) or ("owner" in roles):
-        return True
-
+    if request.data and request.data.get("roles") is not None:
+        roles = json.loads(request.data.get("roles"))
+        if ("renter" in  roles) or ("owner" in roles):
+            return True
+    return False

@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=15,unique=True,null=False,blank=False)
     username = models.CharField(max_length=15,unique=True, blank=True, null=True)
     roles = ArrayField(models.CharField(max_length=20), blank=True, default=list)
-    profile_pic = models.ImageField(max_length=100000, null=True)
+    profile_pic = models.ImageField(upload_to='rent_all_user_profile',max_length=100000, null=True)
     
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['first_name', 'last_name','password','username']
