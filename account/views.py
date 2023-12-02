@@ -31,6 +31,8 @@ def register_user(request):
             user = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 def get_all_users(request):
     if request.method == 'GET':
@@ -43,16 +45,16 @@ def get_all_users(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated, IsSuperUser])
+@parser_classes([MultiPartParser, FormParser])
 def register_admin(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
-        isRoleExist(request)
-        if(not isRoleExist(request)):
-            return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
-        if not isAdminRoleExist(request):
-            return Response("You are not allowed to register renter or owner", status=status.HTTP_403_FORBIDDEN)
-        if isOtherRoleExist(request):
-            return Response("You can't add other role, only admin role is allowed", status=status.HTTP_403_FORBIDDEN)
+        # if(not isRoleExist(request)):
+        #     return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
+        # if not isAdminRoleExist(request):
+        #     return Response("You are not allowed to register renter or owner", status=status.HTTP_403_FORBIDDEN)
+        # if isOtherRoleExist(request):
+        #     return Response("You can't add other role, only admin role is allowed", status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
