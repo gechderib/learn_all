@@ -4,7 +4,7 @@ import phonenumbers
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    roles = serializers.ListSerializer(child=serializers.CharField(max_length=20), default=["renter"])
+    # roles = serializers.ListSerializer(child=serializers.CharField(max_length=20), default=["renter"])
     profile_pic = serializers.ImageField(max_length=None, allow_empty_file=True, use_url=True)
 
     class Meta:

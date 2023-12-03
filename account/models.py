@@ -9,7 +9,8 @@ class CustomUser(AbstractUser):
     # adding the custom field here
     phone_number = models.CharField(max_length=15,unique=True,null=False,blank=False)
     username = models.CharField(max_length=15,unique=True, blank=True, null=True)
-    roles =  ArrayField(models.CharField(max_length=20), blank=True, default=list)
+    # roles =  ArrayField(models.CharFiexxdld(max_length=20), blank=False, default=list)
+
     profile_pic = models.ImageField(upload_to='rent_all_user_profile',max_length=100000, null=True)
     
     USERNAME_FIELD = 'phone_number'
