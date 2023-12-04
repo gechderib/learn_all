@@ -23,12 +23,14 @@ def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
 
-        if(not isRoleExist(request)):
-            return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
-        if isAdminRoleExist(request):
-            return Response("You are not allowed to register admin", status=status.HTTP_403_FORBIDDEN)
+
+        # if(not isRoleExist(request)):
+        #     return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
+        # if isAdminRoleExist(request):
+        #     return Response("You are not allowed to register admin", status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             user = serializer.save()
+            print(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
