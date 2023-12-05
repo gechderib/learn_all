@@ -8,7 +8,7 @@ from .serializers import UserSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
 from rest_framework.authtoken.models import Token
-from commons.middlewares import isRoleExist, isAdminRoleExist, isOtherRoleExist
+from commons.middlewares import isRoleExist, isAdminRoleExist
 from commons.permission import IsAdmin, IsSuperUser
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -22,15 +22,12 @@ import os
 def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
-
-
-        # if(not isRoleExist(request)):
-        #     return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
-        # if isAdminRoleExist(request):
-        #     return Response("You are not allowed to register admin", status=status.HTTP_403_FORBIDDEN)
+        if(not isRoleExist(request)):
+            return Response({"message":"Role doesn't exist please check your request"}, status=status.HTTP_400_BAD_REQUEST)        
+        if isAdminRoleExist(request):
+            return Response({"message":"You are not allowed to add an admin"}, status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             user = serializer.save()
-            print(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -47,16 +44,13 @@ def get_all_users(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated, IsSuperUser])
-@parser_classes([MultiPartParser, FormParser])
 def register_admin(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if(not isRoleExist(request)):
-            return Response("Role doesn't exist please check your request", status=status.HTTP_400_BAD_REQUEST)        
+            return Response({"message":"Role doesn't exist please check your request"}, status=status.HTTP_400_BAD_REQUEST)        
         if not isAdminRoleExist(request):
-            return Response("You are not allowed to register renter or owner", status=status.HTTP_403_FORBIDDEN)
-        if isOtherRoleExist(request):
-            return Response("You can't add other role, only admin role is allowed", status=status.HTTP_403_FORBIDDEN)
+            return Response({"message":"You are not allowed to register renter or owner"}, status=status.HTTP_403_FORBIDDEN)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

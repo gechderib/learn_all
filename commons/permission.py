@@ -7,14 +7,14 @@ class IsSuperUser(BasePermission):
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user and ("admin" in request.user.roles)
+        return request.user and ("admin" == request.user.role)
 
 
 class IsRenter(BasePermission):
     def has_permission(self, request, view):
-        return request.user and ("renter" in request.user.roles)
+        return request.user and ("renter" == request.user.role)
 
 
 class IsOwner(BasePermission):
     def has_permission(self, request, view):
-        return request.user and ("owner" in request.user.roles)
+        return request.user and ("owner" == request.user.role)
