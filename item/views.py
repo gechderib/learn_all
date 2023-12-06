@@ -30,7 +30,23 @@ def add_item(request):
     if request.method == 'POST':
         serializer = ItemCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            name = serializer.validated_data.get('name')
+            category = serializer.validated_data.get("category")
+            subcategory = serializer.validated_data.get('subcategory')
+            postedBy = serializer.validated_data.get('postedBy')
+            description = serializer.validated_data.get('description')
+            status = serializer.validated_data.get('status')
+            rent_price = serializer.validated_data.get('rent_price')
+            available_for_sell = serializer.validated_data.get('available_for_sell')
+            selling_price = serializer.validated_data.get('selling_price')
+            images = request.FILES.getlist('images')
+            print(images)
+            instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price)
+
+            for image in images:
+                instance.images.create(image=image)
+
+            # serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 

@@ -4,6 +4,12 @@ from category.models import Category, SubCategory
 from account.models import CustomUser
 # Create your models here
 # .
+
+class ItemManager(models.Manager):
+    def create(self, name,description,status,rent_price,selling_price,available_for_sell,subcategory,category,postedBy, images):
+        item = self.create(name=name,description=description,status=status,rent_price=rent_price,selling_price=selling_price,available_for_sell=available_for_sell,subcategory=subcategory,category=category,postedBy=postedBy, images=images)
+        # You can add additional logic here if needed
+        return item
 class Item(models.Model):
 
     STATUS_CHOICES = [
@@ -23,7 +29,9 @@ class Item(models.Model):
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name="subcategory")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
     postedBy = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False, related_name='postedBy')
-    
-    images = models.ImageField(upload_to='item_images/')
+    images = models.TextField(blank=True)  # Store image URLs as a comma-separated string
 
+    # images = ArrayField(models.ImageField(upload_to='item_images/'), blank=True, null=True)
+    
+    objects = ItemManager()  # Assign the custom manager
 
