@@ -44,7 +44,9 @@ def add_item(request):
             # image_urls = [uploader.upload(image)['secure_url'] for image in images]
             image_urls = []
             for image in images:
+                print("img = ", image)
                 result = uploader.upload(image)
+                print(result)
                 image_urls.append(result['secure_url'])
 
             instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=','.join(image_urls))
