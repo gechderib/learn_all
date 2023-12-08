@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from cloudinary import uploader
 from commons.middlewares import isImageExist
+from django.shortcuts import get_object_or_404
 # Create your views here.
 @api_view(['GET'])
 def get_all_items(request):
@@ -54,4 +55,25 @@ def add_item(request):
 
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+@api_view(['PUT', 'PATCH'])
+@parser_classes([MultiPartParser, FormParser])
+def update_item(request, pk):
+    instance = get_object_or_404(Item, pk=pk)
+    if request.method in ['PUT','PATCH']:
+        serializer = ItemCreateSerializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Check if images are being updated
+            if 'images' in request.FILES:
+                item_folder = "item_images"
+                new_image_urls = []
+                for new_image in request.FILES.getlist('images'):
+                    result = uploader.upload(new_image, folder=item_folder)
+                    new_image_urls.append(result['secure_url'])
+
+                instance.image_urls = new_image_urls
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    return Response({"message": "Invalid HTTP method"}, status=405)
 
