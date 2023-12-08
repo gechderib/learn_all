@@ -9,6 +9,8 @@ from cloudinary import uploader
 from commons.middlewares import isImageExist
 from django.shortcuts import get_object_or_404
 from commons.utils import  delete_cloudinary_image
+from django.http import HttpResponse, JsonResponse
+
 # Create your views here.
 @api_view(['GET'])
 def get_all_items(request):
@@ -71,12 +73,8 @@ def update_item(request, pk):
                 for img_url in instance.image_urls:
                     parts = img_url.split('/')
                     public_id = item_folder +"/"+ parts[-1].split('.')[0]
-                    print(public_id)
-                    aaa = delete_cloudinary_image(public_id)
-                    print("aaa = ", aaa)
-
-                # add the new image to cloudinary
-                
+                    delete_cloudinary_image(public_id)
+                # add the new image to cloudinary                
                 new_image_urls = []
                 for new_image in request.FILES.getlist('images'):
                     result = uploader.upload(new_image, folder=item_folder)
@@ -88,3 +86,15 @@ def update_item(request, pk):
         return Response(serializer.errors, status=400)
     return Response({"message": "Invalid HTTP method"}, status=405)
 
+@api_view(['DELETE'])
+def delete_item(request, pk):
+    instance = get_object_or_404(Item,pk=pk)
+    if request.method == "DELETE":
+        item_folder = "item_images"
+        for img_url in instance.image_urls:
+            parts = img_url.split('/')
+            public_id = item_folder +"/"+ parts[-1].split('.')[0]
+            delete_cloudinary_image(public_id)
+
+        instance.delete()
+        return HttpResponse(status=204)
