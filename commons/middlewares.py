@@ -22,3 +22,8 @@ def isImageExist(request):
     if(len(images) < 2):
         return False
     return True
+
+def isAddingImage(request):
+    if request.data.get("is_adding_image") is not None:
+        return True
+    return False

@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes,authenticatio
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from cloudinary import uploader
-from commons.middlewares import isImageExist
+from commons.middlewares import isImageExist,isAddingImage
 from django.shortcuts import get_object_or_404
 from commons.utils import  delete_cloudinary_image
 from django.http import HttpResponse, JsonResponse
@@ -68,19 +68,28 @@ def update_item(request, pk):
         if serializer.is_valid():
             # Check if images are being updated
             if 'images' in request.FILES:
-                # remove the previous image from cloudinary
                 item_folder = "item_images"
-                for img_url in instance.image_urls:
-                    parts = img_url.split('/')
-                    public_id = item_folder +"/"+ parts[-1].split('.')[0]
-                    delete_cloudinary_image(public_id)
-                # add the new image to cloudinary                
-                new_image_urls = []
-                for new_image in request.FILES.getlist('images'):
-                    result = uploader.upload(new_image, folder=item_folder)
-                    new_image_urls.append(result['secure_url'])
+                if isAddingImage(request):
+                    # add the new image to cloudinary                
+                    new_image_urls = []
+                    for new_image in request.FILES.getlist('images'):
+                        result = uploader.upload(new_image, folder=item_folder)
+                        new_image_urls.append(result['secure_url'])
 
-                instance.image_urls = new_image_urls
+                    instance.image_urls.extend(new_image_urls)
+                else:
+                    # remove the previous image from cloudinary
+                    for img_url in instance.image_urls:
+                        parts = img_url.split('/')
+                        public_id = item_folder +"/"+ parts[-1].split('.')[0]
+                        delete_cloudinary_image(public_id)
+                    # add the new image to cloudinary                
+                    new_image_urls = []
+                    for new_image in request.FILES.getlist('images'):
+                        result = uploader.upload(new_image, folder=item_folder)
+                        new_image_urls.append(result['secure_url'])
+
+                    instance.image_urls = new_image_urls
             serializer.save()
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
