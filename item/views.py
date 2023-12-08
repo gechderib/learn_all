@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from cloudinary import uploader
 from commons.middlewares import isImageExist
 from django.shortcuts import get_object_or_404
+from commons.utils import get_public_id_from_url, delete_cloudinary_image
 # Create your views here.
 @api_view(['GET'])
 def get_all_items(request):
@@ -65,6 +66,12 @@ def update_item(request, pk):
         if serializer.is_valid():
             # Check if images are being updated
             if 'images' in request.FILES:
+                # remove the previous image from cloudinary
+                for img_url in instance.image_urls:
+                    public_id_from_url = get_public_id_from_url(img_url)
+                    delete_cloudinary_image(public_id_from_url)
+                    
+                # add the new image to cloudinary
                 item_folder = "item_images"
                 new_image_urls = []
                 for new_image in request.FILES.getlist('images'):
