@@ -16,3 +16,9 @@ def isOtherRoleExist(request):
     if request.data and request.data.get("role") not in ROLES:
         return True
     return False
+
+def isImageExist(request):
+    images = request.FILES.getlist('images')
+    if(len(images) < 2):
+        return False
+    return True

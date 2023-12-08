@@ -30,8 +30,7 @@ class Item(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
     postedBy = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False, related_name='postedBy')
     
-    # image_urls = models.TextField(blank=True, null=True)  # Store image URLs as a comma-separated string
-    image_urls = ArrayField(models.TextField(blank=False, null=False))  # Store image URLs as a comma-separated string
+    image_urls = ArrayField(models.TextField(blank=False, null=False),default=list)  # Store image URLs as a comma-separated string
 
     # images = ArrayField(models.ImageField(upload_to='item_images/'), blank=True, null=True)
     

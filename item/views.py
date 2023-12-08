@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes,authenticatio
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from cloudinary import uploader
-
+from commons.middlewares import isImageExist
 # Create your views here.
 @api_view(['GET'])
 def get_all_items(request):
@@ -31,6 +31,8 @@ def add_item(request):
     if request.method == 'POST':
         serializer = ItemCreateSerializer(data=request.data)
         if serializer.is_valid():
+            if(not isImageExist(request)):
+                return Response({"message":"you should select atleast two image"}, status=401)
             name = serializer.validated_data.get('name')
             category = serializer.validated_data.get("category")
             subcategory = serializer.validated_data.get('subcategory')
@@ -41,22 +43,15 @@ def add_item(request):
             available_for_sell = serializer.validated_data.get('available_for_sell')
             selling_price = serializer.validated_data.get('selling_price')
             images = request.FILES.getlist('images')
-            # image_urls = [uploader.upload(image)['secure_url'] for image in images]
+
             image_urls = []
-            print(len(images))
+            item_folder = "item_images"
             for i in range(len(images)):
-                print("Processing image:", i + 1)
-                print("Image path:", images[i])
-
-                result = uploader.upload(images[i])
-                print("Upload result:", result)
-
+                result = uploader.upload(images[i], folder=item_folder)
                 image_urls.append(result['secure_url'])
             instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=image_urls)
-            print(image_urls)
             serializer = ItemCreateSerializer(instance)
 
-            # serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
