@@ -43,15 +43,18 @@ def add_item(request):
             images = request.FILES.getlist('images')
             # image_urls = [uploader.upload(image)['secure_url'] for image in images]
             image_urls = []
-            for image in images:
-                print("img = ", image)
-                result = uploader.upload(image)
-                print(result)
-                image_urls.append(result['secure_url'])
+            print(len(images))
+            for i in range(len(images)):
+                print("Processing image:", i + 1)
+                print("Image path:", images[i])
 
-            instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=','.join(image_urls))
-            
-            serializer = ItemCreateSerializer(instance)
+                result = uploader.upload(images[i])
+                print("Upload result:", result)
+
+                image_urls.append(result['secure_url'])
+            # instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=','.join(image_urls))
+            print(image_urls)
+            # serializer = ItemCreateSerializer(instance)
 
             # serializer.save()
             return Response(serializer.data, status=201)

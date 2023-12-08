@@ -9,9 +9,9 @@ class ItemCreateSerializer(serializers.ModelSerializer):
     subcategory = serializers.PrimaryKeyRelatedField(queryset=SubCategory.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     postedBy = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    images = serializers.ListField(
-        child=serializers.ImageField(max_length=None, allow_empty_file=False, use_url=True, required=True)
-    )
+    # images = serializers.ListField(
+    #     child=serializers.ImageField(max_length=None, allow_empty_file=False, use_url=True, required=True)
+    # )
 
 
     class Meta:
