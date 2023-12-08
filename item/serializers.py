@@ -12,7 +12,7 @@ class ItemCreateSerializer(serializers.ModelSerializer):
     # images = serializers.ListField(
     #     child=serializers.ImageField(max_length=None, allow_empty_file=False, use_url=True, required=True)
     # )
-
+    
 
     class Meta:
         model = Item

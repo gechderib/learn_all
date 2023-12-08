@@ -52,9 +52,9 @@ def add_item(request):
                 print("Upload result:", result)
 
                 image_urls.append(result['secure_url'])
-            # instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=','.join(image_urls))
+            instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=image_urls)
             print(image_urls)
-            # serializer = ItemCreateSerializer(instance)
+            serializer = ItemCreateSerializer(instance)
 
             # serializer.save()
             return Response(serializer.data, status=201)
