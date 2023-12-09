@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'category',
     'item',
     'cloudinary_storage',
-    'cloudinary'
+    'cloudinary',
 ]
 
 REST_FRAMEWORK = {

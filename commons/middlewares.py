@@ -27,3 +27,4 @@ def isAddingImage(request):
     if request.data.get("is_adding_image") is not None:
         return True
     return False
+

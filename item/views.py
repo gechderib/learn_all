@@ -7,17 +7,39 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from cloudinary import uploader
 from commons.middlewares import isImageExist,isAddingImage
-from django.shortcuts import get_object_or_404
 from commons.utils import  delete_cloudinary_image
+from commons.permission import IsOwner
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, JsonResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from django.db.models import Q
 
-# Create your views here.
+# @api_view(['GET'])
+# def get_all_items(request):
+#     param1 = request.query_params.get('param1')
+#     print(param1)
+#     if request.method == 'GET':
+#         items = Item.objects.all()
+#         serializer = ItemSerializer(items, many=True)
+#         return Response(serializer.data)
+
 @api_view(['GET'])
 def get_all_items(request):
-    if request.method == 'GET':
-        items = Item.objects.all()
-        serializer = ItemSerializer(items, many=True)
-        return Response(serializer.data)
+    search_term = request.query_params.get('search', '')
+    if search_term:
+        # Perform a case-insensitive search on name, category, and subcategory
+        queryset = Item.objects.filter(
+            Q(name__icontains=search_term) |
+            Q(category__name__icontains=search_term) |
+            Q(subcategory__name__icontains=search_term)
+        )
+    else:
+        queryset = Item.objects.all()
+
+    serializer = ItemSerializer(queryset, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_one_item(request,pk):
@@ -30,6 +52,9 @@ def get_one_item(request,pk):
         return Response(serializer.data)
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+@permission_classes([IsOwner])
 @parser_classes([MultiPartParser, FormParser])
 def add_item(request):
     if request.method == 'POST':
@@ -60,9 +85,13 @@ def add_item(request):
         return Response(serializer.errors, status=400)
 
 @api_view(['PUT', 'PATCH'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def update_item(request, pk):
     instance = get_object_or_404(Item, pk=pk)
+    if not (request.user and request.user == instance.postedBy):
+        return Response({"message":"You can only update you own item"})
     if request.method in ['PUT','PATCH']:
         serializer = ItemCreateSerializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
@@ -96,8 +125,13 @@ def update_item(request, pk):
     return Response({"message": "Invalid HTTP method"}, status=405)
 
 @api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_item(request, pk):
     instance = get_object_or_404(Item,pk=pk)
+    if not (request.user and request.user == instance.postedBy):
+        return Response({"message":"You can only delete you own item"})
+
     if request.method == "DELETE":
         item_folder = "item_images"
         for img_url in instance.image_urls:

@@ -18,3 +18,4 @@ class IsRenter(BasePermission):
 class IsOwner(BasePermission):
     def has_permission(self, request, view):
         return request.user and ("owner" == request.user.role)
+    
