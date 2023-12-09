@@ -14,31 +14,56 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
+import openai
+
 
 # @api_view(['GET'])
 # def get_all_items(request):
-#     param1 = request.query_params.get('param1')
-#     print(param1)
-#     if request.method == 'GET':
-#         items = Item.objects.all()
-#         serializer = ItemSerializer(items, many=True)
-#         return Response(serializer.data)
+#     search_term = request.query_params.get('search', '')
+#     if search_term:
+#         # Perform a case-insensitive search on name, category, and subcategory
+#         queryset = Item.objects.filter(
+#             Q(name__icontains=search_term) |
+#             Q(category__name__icontains=search_term) |
+#             Q(subcategory__name__icontains=search_term)
+#         )
+#     else:
+#         queryset = Item.objects.all()
+
+#     serializer = ItemSerializer(queryset, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 @api_view(['GET'])
 def get_all_items(request):
     search_term = request.query_params.get('search', '')
     if search_term:
-        # Perform a case-insensitive search on name, category, and subcategory
-        queryset = Item.objects.filter(
-            Q(name__icontains=search_term) |
-            Q(category__name__icontains=search_term) |
-            Q(subcategory__name__icontains=search_term)
+        # Set up OpenAI API key
+        openai.api_key = 'org-bRILD7WOZtEpn2mhdpxVPaEz'
+
+        # Use OpenAI's Completions API to generate relevant text
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # You can experiment with different engines
+            prompt=f"Find products related to: {search_term}",
+            max_tokens=50  # Adjust based on the desired length of generated text
         )
+
+        # Extract relevant information from the OpenAI API response
+        generated_text = response['choices'][0]['text']
+        generated_keywords = generated_text.split()
+
+        # Use the generated keywords to filter products
+        queryset = Item.objects.filter(
+            name__icontains=generated_keywords[0]
+        )
+
     else:
         queryset = Item.objects.all()
 
     serializer = ItemSerializer(queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])
