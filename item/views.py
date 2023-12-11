@@ -15,10 +15,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
 import openai
-
+from openai import OpenAI
 import spacy
 from spacy.matcher import PhraseMatcher
 
+client = openai.OpenAI(api_key='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')
 
 # @api_view(['GET'])
 # def get_all_items(request):
@@ -38,70 +39,42 @@ from spacy.matcher import PhraseMatcher
 
 
 
-# @api_view(['GET'])
-# def get_all_items(request):
-#     search_term = request.query_params.get('search', '')
-#     if search_term:
-#         # Set up OpenAI API key
-#         openai.api_key = 'org-bRILD7WOZtEpn2mhdpxVPaEz'
-
-#         # Use OpenAI's Completions API to generate relevant text
-#         response = openai.Completion.create(
-#             engine="text-davinci-003",  # You can experiment with different engines
-#             prompt=f"Find products related to: {search_term}",
-#             max_tokens=50  # Adjust based on the desired length of generated text
-#         )
-
-#         # Extract relevant information from the OpenAI API response
-#         generated_text = response['choices'][0]['text']
-#         generated_keywords = generated_text.split()
-
-#         # Use the generated keywords to filter products
-#         queryset = Item.objects.filter(
-#             name__icontains=generated_keywords[0]
-#         )
-
-#     else:
-#         queryset = Item.objects.all()
-
-#     serializer = ItemSerializer(queryset, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
 @api_view(['GET'])
 def get_all_items(request):
     search_term = request.query_params.get('search', '')
     if search_term:
-        # Initialize spaCy and load the English model
-        nlp = spacy.load('en_core_web_sm')
-        # Process the search term with spaCy
-        search_doc = nlp(search_term.lower())
-        # Extract keywords from the processed search term
-        keywords = [token.text for token in search_doc if not token.is_stop]
-        # Use spaCy's PhraseMatcher to find matches in the product names
-        matcher = PhraseMatcher(nlp.vocab)
-        patterns = [nlp(keyword) for keyword in keywords]
-        matcher.add("Keywords", None, *patterns)
+        # Set up OpenAI API key
+        openai.api_key = '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'
 
-        # Apply the matcher to the product names
-        matched_products = []
-        for product in Item.objects.all():
-            product_doc = nlp(product.name.lower())
-            
-            matches = matcher(product_doc)
-            if matches:
-                matched_products.append(product)
+        # # Use OpenAI's Completions API to generate relevant text
+        # response = openai.Completion.create(
+        #     engine="text-davinci-003",  # You can experiment with different engines
+        #     prompt=f"Find products related to: {search_term}",
+        #     max_tokens=50  # Adjust based on the desired length of generated text
+        # )
 
-        # Convert the matched products to a queryset
-        queryset = Item.objects.filter(pk__in=[product.pk for product in matched_products])
+        response = client.embeddings.create(
+            input="Your text string goes here",
+            model="text-embedding-ada-002"
+        )
+
+        # # Extract relevant information from the OpenAI API response
+        # generated_text = response['choices'][0]['text']
+        # print(generated_text)
+        # generated_keywords = generated_text.split()
+        print(response.data[0].embedding)
+
+        # Use the generated keywords to filter products
+        queryset = Item.objects.filter(
+            name__icontains=response.data[0]
+        )
 
     else:
         queryset = Item.objects.all()
 
     serializer = ItemSerializer(queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 
