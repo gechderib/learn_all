@@ -14,57 +14,43 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
+from decouple import config
+
 import openai
-from openai import OpenAI
-import spacy
-from spacy.matcher import PhraseMatcher
 
-client = openai.OpenAI(api_key='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')
-
-# @api_view(['GET'])
-# def get_all_items(request):
-#     search_term = request.query_params.get('search', '')
-#     if search_term:
-#         # Perform a case-insensitive search on name, category, and subcategory
-#         queryset = Item.objects.filter(
-#             Q(name__icontains=search_term) |
-#             Q(category__name__icontains=search_term) |
-#             Q(subcategory__name__icontains=search_term)
-#         )
-#     else:
-#         queryset = Item.objects.all()
-
-#     serializer = ItemSerializer(queryset, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
+client = openai.OpenAI(api_key=config("openai_key"))
 
 @api_view(['GET'])
 def get_all_items(request):
     search_term = request.query_params.get('search', '')
     if search_term:
-        # Set up OpenAI API key
-        openai.api_key = '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'
+        # Perform a case-insensitive search on name, category, and subcategory
+        queryset = Item.objects.filter(
+            Q(name__icontains=search_term) |
+            Q(category__name__icontains=search_term) |
+            Q(subcategory__name__icontains=search_term)
+        )
+    else:
+        queryset = Item.objects.all()
 
-        # # Use OpenAI's Completions API to generate relevant text
-        # response = openai.Completion.create(
-        #     engine="text-davinci-003",  # You can experiment with different engines
-        #     prompt=f"Find products related to: {search_term}",
-        #     max_tokens=50  # Adjust based on the desired length of generated text
-        # )
+    serializer = ItemSerializer(queryset, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET'])
+def get_all_items_semantic(request):
+    search_term = request.query_params.get('search', '')
+    if search_term:
+        # Set up OpenAI API key
+        openai.api_key = config("openai_key")
 
         response = client.embeddings.create(
             input="Your text string goes here",
             model="text-embedding-ada-002"
         )
-
-        # # Extract relevant information from the OpenAI API response
-        # generated_text = response['choices'][0]['text']
-        # print(generated_text)
-        # generated_keywords = generated_text.split()
         print(response.data[0].embedding)
 
-        # Use the generated keywords to filter products
         queryset = Item.objects.filter(
             name__icontains=response.data[0]
         )
