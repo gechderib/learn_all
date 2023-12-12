@@ -43,8 +43,6 @@ def get_all_items_semantic(request):
     search_term = request.query_params.get('search', '')
     if search_term:
         # Set up OpenAI API key
-        openai.api_key = config("openai_key")
-
         response = client.embeddings.create(
             input="Your text string goes here",
             model="text-embedding-ada-002"
@@ -75,9 +73,9 @@ def get_one_item(request,pk):
         return Response(serializer.data)
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-@permission_classes([IsOwner])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+# @permission_classes([IsOwner])
 @parser_classes([MultiPartParser, FormParser])
 def add_item(request):
     if request.method == 'POST':
@@ -95,14 +93,18 @@ def add_item(request):
             available_for_sell = serializer.validated_data.get('available_for_sell')
             selling_price = serializer.validated_data.get('selling_price')
             images = request.FILES.getlist('images')
+            print("name = "+ name)
+            response = client.embeddings.create(input=name, model="text-embedding-ada-002")
+            print(response.data[0].embedding)
 
+            embedings =  response.data[0].embedding
             image_urls = []
             item_folder = "item_images"
             for image in images:
                 result = uploader.upload(image, folder=item_folder)
                 image_urls.append(result['secure_url'])
             
-            instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=image_urls)
+            instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=image_urls,embedings=embedings)
             serializer = ItemCreateSerializer(instance)
 
             return Response(serializer.data, status=201)

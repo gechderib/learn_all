@@ -6,8 +6,8 @@ from account.models import CustomUser
 # .
 
 class ItemManager(models.Manager):
-    def create_item(self, name,description,status,rent_price,selling_price,available_for_sell,subcategory,category,postedBy,image_urls):
-        item = self.create(name=name,description=description,status=status,rent_price=rent_price,selling_price=selling_price,available_for_sell=available_for_sell,subcategory=subcategory,category=category,postedBy=postedBy,image_urls=image_urls)
+    def create_item(self, name,description,status,rent_price,selling_price,available_for_sell,subcategory,category,postedBy,image_urls,embedings):
+        item = self.create(name=name,description=description,status=status,rent_price=rent_price,selling_price=selling_price,available_for_sell=available_for_sell,subcategory=subcategory,category=category,postedBy=postedBy,image_urls=image_urls,embedings=embedings)
         # You can add additional logic here if needed
         return item
 class Item(models.Model):
