@@ -31,8 +31,7 @@ class Item(models.Model):
     postedBy = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False, related_name='postedBy')
     
     image_urls = ArrayField(models.TextField(blank=False, null=False),default=list)  # Store image URLs as a comma-separated string
-
-    # images = ArrayField(models.ImageField(upload_to='item_images/'), blank=True, null=True)
+    embedings = ArrayField(models.FloatField(blank=False, null=False), default=list)
     
     objects = ItemManager()  # Assign the custom manager
 

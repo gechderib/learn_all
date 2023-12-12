@@ -101,6 +101,7 @@ def add_item(request):
             for image in images:
                 result = uploader.upload(image, folder=item_folder)
                 image_urls.append(result['secure_url'])
+            
             instance = Item.objects.create(name=name, category=category,subcategory=subcategory,postedBy=postedBy,description=description,status=status,rent_price=rent_price,available_for_sell=available_for_sell, selling_price=selling_price,image_urls=image_urls)
             serializer = ItemCreateSerializer(instance)
 
