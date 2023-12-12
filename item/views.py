@@ -15,6 +15,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
 from decouple import config
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 import openai
 
@@ -44,15 +46,27 @@ def get_all_items_semantic(request):
     if search_term:
         # Set up OpenAI API key
         response = client.embeddings.create(
-            input="Your text string goes here",
+            input=search_term,
             model="text-embedding-ada-002"
         )
-        print(response.data[0].embedding)
+        vectors_openai = response.data[0].embedding # List of OpenAI vectors
 
-        queryset = Item.objects.filter(
-            name__icontains=response.data[0]
-        )
+        # Let vectors_openai be the list of vectors from the OpenAI model
+        vectors_openai = [...]  # List of OpenAI vectors
 
+        # Let items be the queryset of your Item model
+        items = Item.objects.all()
+
+        # Extract the embedding vectors from the Item model
+        vectors_item_model = [item.embedding_vector for item in items]
+
+        # Calculate cosine similarity between each pair of vectors
+        similarity_matrix = cosine_similarity(vectors_openai, vectors_item_model)
+
+        # Find the most similar item for each vector from the OpenAI model
+        most_similar_items = [items[np.argmax(similarity_row)] for similarity_row in similarity_matrix]
+
+        queryset = most_similar_items
     else:
         queryset = Item.objects.all()
 
