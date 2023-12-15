@@ -17,10 +17,19 @@ from django.db.models import Q
 from decouple import config
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from django.db.models import F
+from django.db.models.functions import Cos
+from django.db.models import F, Func
 
 import openai
 
 client = openai.OpenAI(api_key=config("openai_key"))
+
+
+class CosineSimilarity(Func):
+    function = 'COS'
+    arity = 1
+
 
 @api_view(['GET'])
 def get_all_items(request):
@@ -39,49 +48,49 @@ def get_all_items(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+def get_emb(search_term):
+    searchTermEmbedding = client.embeddings.create(input=search_term,  model="text-embedding-ada-002")
+    return searchTermEmbedding.data[0].embedding
+
+def get_cosine_similarity(embedding1, embedding2):
+    return cosine_similarity([embedding1], [embedding2])[0][0]
+
 
 @api_view(['GET'])
 def get_all_items_semantic(request):
     search_term = request.query_params.get('search', '')
     if search_term:
         # Set up OpenAI API key
-        response = client.embeddings.create(
-            input=search_term,
-            model="text-embedding-ada-002"
-        )
-        vectors_openai = response.data[0].embedding # List of OpenAI vectors
-        vectors_openai = np.array(vectors_openai).reshape(-1, 1) 
-        # Let items be the queryset of your Item model
+        # response = client.embeddings.create(
+        #     input=search_term,
+        #     model="text-davinci-003"
+        # )
+
+        # items = Item.objects.annotate(similarity=Cos(F('embedings'), searchTermEmbedding.data[0].embedding)).order_by('-similarity')[:20]
         items = Item.objects.all()
+        embeddings = [item.embedings for item in items]
+        
+        query_embedding = get_emb(search_term)
+        
+        similarities = [get_cosine_similarity(query_embedding, item_embedding) for item_embedding in embeddings]
+        
+        # Combine items and similarities
+        items_with_similarity = list(zip(items, similarities))
+        
+        # Sort by similarity in descending order
+        items_with_similarity.sort(key=lambda x: x[1], reverse=True)
+        
+        # Return top 'n' items
+        result = items_with_similarity[:4]
+        print(result)
+        serializer = ItemSerializer([item[0] for item in result], many=True)
 
-        # Extract the embedding vectors from the Item model
-        vectors_item_model = [item.embedings for item in items]
-        vectors_item_model = np.array(vectors_item_model)
-        vectors_item_model = vectors_item_model.reshape(-1, 1) 
-        # Calculate cosine similarity between each pair of vectors
-        similarity_matrix = cosine_similarity(vectors_openai, vectors_item_model)
-        print(similarity_matrix)
-        # Find the most similar item for each vector from the OpenAI model
-        # most_similar_items = [items[np.argmax(similarity_row)] for similarity_row in similarity_matrix]
-        # most_similar_items = [items[int(np.argmax(similarity_row))] for similarity_row in similarity_matrix]
-        most_similar_items = []
-
-        for similarity_row in similarity_matrix:
-            argmax_index = int(np.argmax(similarity_row))
-            
-            if 0 <= argmax_index < len(items):
-                most_similar_items.append(items[argmax_index])
-            else:
-                # Handle the case where the index is out of range
-                print("Index out of range:", argmax_index)
-
-        # print(most_similar_items)
-        # queryset = most_similar_items
+        return Response(serializer.data)
+                                    
     else:
         queryset = Item.objects.all()
-
-    serializer = ItemSerializer("", many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = ItemSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
