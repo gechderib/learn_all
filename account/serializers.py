@@ -4,7 +4,6 @@ from .models import CustomUser
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    # role = serializers.CharField(write_only=True)
     profile_pic = serializers.ImageField(max_length=None, allow_empty_file=True, use_url=True, required=False)
 
     class Meta:
