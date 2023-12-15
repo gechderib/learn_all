@@ -22,7 +22,8 @@ class ItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False, read_only=True)
     postedBy = UserSerializer(many=False, read_only=True)
     status = serializers.SerializerMethodField()
-    
+    embedings = serializers.ListField(write_only=True)
+
     def get_status(self, obj):
         return obj.get_status_display()
 
