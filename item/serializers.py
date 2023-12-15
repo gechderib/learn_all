@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Item
 from category.serializers import SubCategorySerializer, CategorySerializer
-from account.serializers import UserSerializer
+from account.serializers import UserSerializer,UserSerializerGet
 from category.models import SubCategory, Category
 from account.models import CustomUser
 
@@ -20,7 +20,7 @@ class ItemSerializer(serializers.ModelSerializer):
     
     subcategory = SubCategorySerializer(many=False, read_only=True)
     category = CategorySerializer(many=False, read_only=True)
-    postedBy = UserSerializer(many=False, read_only=True)
+    postedBy = UserSerializerGet(many=False, read_only=True)
     status = serializers.SerializerMethodField()
     embedings = serializers.ListField(write_only=True)
 
