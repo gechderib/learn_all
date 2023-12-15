@@ -50,27 +50,37 @@ def get_all_items_semantic(request):
             model="text-embedding-ada-002"
         )
         vectors_openai = response.data[0].embedding # List of OpenAI vectors
-
-        # Let vectors_openai be the list of vectors from the OpenAI model
-        vectors_openai = [...]  # List of OpenAI vectors
-
+        vectors_openai = np.array(vectors_openai).reshape(-1, 1) 
         # Let items be the queryset of your Item model
         items = Item.objects.all()
 
         # Extract the embedding vectors from the Item model
-        vectors_item_model = [item.embedding_vector for item in items]
-
+        vectors_item_model = [item.embedings for item in items]
+        vectors_item_model = np.array(vectors_item_model)
+        vectors_item_model = vectors_item_model.reshape(-1, 1) 
         # Calculate cosine similarity between each pair of vectors
         similarity_matrix = cosine_similarity(vectors_openai, vectors_item_model)
-
+        print(similarity_matrix)
         # Find the most similar item for each vector from the OpenAI model
-        most_similar_items = [items[np.argmax(similarity_row)] for similarity_row in similarity_matrix]
+        # most_similar_items = [items[np.argmax(similarity_row)] for similarity_row in similarity_matrix]
+        # most_similar_items = [items[int(np.argmax(similarity_row))] for similarity_row in similarity_matrix]
+        most_similar_items = []
 
-        queryset = most_similar_items
+        for similarity_row in similarity_matrix:
+            argmax_index = int(np.argmax(similarity_row))
+            
+            if 0 <= argmax_index < len(items):
+                most_similar_items.append(items[argmax_index])
+            else:
+                # Handle the case where the index is out of range
+                print("Index out of range:", argmax_index)
+
+        # print(most_similar_items)
+        # queryset = most_similar_items
     else:
         queryset = Item.objects.all()
 
-    serializer = ItemSerializer(queryset, many=True)
+    serializer = ItemSerializer("", many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
