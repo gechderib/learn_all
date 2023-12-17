@@ -1,5 +1,5 @@
 from django.db import models
-
+from item.models import Item
 # Create your models here.
 
 class SubCategory(models.Model):
@@ -9,3 +9,7 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.name}"
+class RentHistory(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    item = models.ForeignKey(Item, on_delete=models.CASCADE,)
